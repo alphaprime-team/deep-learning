@@ -4,19 +4,18 @@ import torch
 
 def train(args):
     n_epochs = 100
-    batch_size = 128
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-    train_data = load_data('data/train', batch_size=batch_size)
-    print('Length of data: ', len(train_data))
+    train_data = load_data('data/train')
     valid_data = load_data('data/valid')
   
-    model = model_factory[args.model]()
+    model = model_factory[args.model]().to(device)
     loss_fn = ClassificationLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-4)
 
     for epoch in range(n_epochs):
-      for batch_num in range(len(train_data)):
-        train_features, train_labels = next(iter(train_data))
+      for train_features, train_labels in train_data:
+        train_features, train_labels = train_features.to(device), train_labels.to(device)
 
         output = model(train_features)
         loss = loss_fn(output, train_labels)
