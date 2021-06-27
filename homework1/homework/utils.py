@@ -10,12 +10,6 @@ LABEL_NAMES = ['background', 'kart', 'pickup', 'nitro', 'bomb', 'projectile']
 
 class SuperTuxDataset(Dataset):
     def __init__(self, dataset_path):
-        """
-        Your code here
-        Hint: Use the python csv library to parse labels.csv
-
-        WARNING: Do not perform data normalization here. 
-        """
         self.data = []
         self.dataset_path = dataset_path
 
@@ -25,16 +19,9 @@ class SuperTuxDataset(Dataset):
             self.data.append((row['label'], row['file']))
 
     def __len__(self):
-        """
-        Your code here
-        """
         return len(self.data)
 
     def __getitem__(self, idx):
-        """
-        Your code here
-        return a tuple: img, label
-        """
         img = Image.open(self.dataset_path + '/' + self.data[idx][1])
         image_to_tensor = transforms.ToTensor()
         imgTensor = image_to_tensor(img)
