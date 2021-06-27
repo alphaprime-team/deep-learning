@@ -16,7 +16,7 @@ class ClassificationLoss(torch.nn.Module):
 
         Hint: Don't be too fancy, this is a one-liner
         """
-        raise NotImplementedError('ClassificationLoss.forward')
+        return F.cross_entropy(input, target)
 
 
 class LinearClassifier(torch.nn.Module):
