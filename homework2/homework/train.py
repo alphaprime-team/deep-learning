@@ -7,7 +7,7 @@ import torch.utils.tensorboard as tb
 def train(args):
     from os import path
 
-    n_epochs = 100
+    n_epochs = 25
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     train_data = load_data('data/train')
@@ -15,15 +15,15 @@ def train(args):
 
     model = CNNClassifier().to(device)
     loss_fn = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-4)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.05, momentum=0.9, weight_decay=1e-4)
 
     train_logger, valid_logger = None, None
     if args.log_dir is not None:
         train_logger = tb.SummaryWriter(path.join(args.log_dir, 'train'))
         valid_logger = tb.SummaryWriter(path.join(args.log_dir, 'valid'))
 
+    iteration = 0
     for epoch in range(n_epochs):
-      iteration = 0
       for train_features, train_labels in train_data:
         train_features, train_labels = train_features.to(device), train_labels.to(device)
 
@@ -31,8 +31,8 @@ def train(args):
         loss = loss_fn(output, train_labels)
 
         if train_logger:
-            train_logger.add_scalar('loss', loss.mean(), epoch*20 + iteration)
-            train_logger.add_scalar('accuracy', accuracy(output, train_labels), epoch*20 + iteration)
+            train_logger.add_scalar('loss', loss.mean(), iteration)
+            train_logger.add_scalar('accuracy', accuracy(output, train_labels), iteration)
 
         optimizer.zero_grad()
         loss.backward()
@@ -45,7 +45,7 @@ def train(args):
             valid_features, valid_labels = valid_features.to(device), valid_labels.to(device)
             output = model(valid_features)
 
-            valid_logger.add_scalar('accuracy', accuracy(output, valid_labels), (epoch+1)*20-1)
+            valid_logger.add_scalar('accuracy', accuracy(output, valid_labels), iteration)
 
     save_model(model)
 
