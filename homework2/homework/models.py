@@ -1,10 +1,6 @@
 import torch
 import torch.nn.functional as F
 
-class ClassificationLoss(torch.nn.Module):
-    def forward(self, input, target):
-        return F.cross_entropy(input, target)
-
 class CNNClassifier(torch.nn.Module):
     def __init__(self, layers=[], n_input_channels=3, kernel_size=3):
         super().__init__()
@@ -19,7 +15,7 @@ class CNNClassifier(torch.nn.Module):
         self.network = torch.nn.Sequential(*L)
 
     def forward(self, x):
-        return self.network(x)
+        return self.network(x).mean([2, 3])
 
 def save_model(model):
     from torch import save

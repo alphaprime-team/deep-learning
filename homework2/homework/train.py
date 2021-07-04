@@ -1,4 +1,4 @@
-from .models import CNNClassifier, ClassificationLoss, save_model
+from .models import CNNClassifier, save_model
 from .utils import accuracy, load_data
 import torch
 import torch.utils.tensorboard as tb
@@ -13,16 +13,14 @@ def train(args):
     train_data = load_data('data/train')
     valid_data = load_data('data/valid')
 
-    model = CNNClassifier()
-    loss_fn = ClassificationLoss()
+    model = CNNClassifier().to(device)
+    loss_fn = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-4)
 
     train_logger, valid_logger = None, None
     if args.log_dir is not None:
         train_logger = tb.SummaryWriter(path.join(args.log_dir, 'train'))
         valid_logger = tb.SummaryWriter(path.join(args.log_dir, 'valid'))
-
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-4)
 
     for epoch in range(n_epochs):
       iteration = 0
@@ -43,7 +41,7 @@ def train(args):
         iteration += 1
 
       if valid_logger:
-        for valid_features, valid_labels = valid_data:
+        for valid_features, valid_labels in valid_data:
             valid_features, valid_labels = valid_features.to(device), valid_labels.to(device)
             output = model(valid_features)
 
